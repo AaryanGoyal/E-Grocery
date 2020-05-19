@@ -1,3 +1,1 @@
-print("hello")
-print("lund daba fir sabka ")
-print("trying")
+import mysql.connector
