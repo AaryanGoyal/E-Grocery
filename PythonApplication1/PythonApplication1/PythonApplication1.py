@@ -1,2 +1,14 @@
 import mysql.connector
-print("suuc")
+
+mydb = mysql.connector.connect(
+  host="localhost",
+  user="root",
+  passwd="classic10"
+)
+
+mycursor = mydb.cursor()
+
+mycursor.execute("SHOW DATABASES")
+
+for x in mycursor:
+  print(x)
