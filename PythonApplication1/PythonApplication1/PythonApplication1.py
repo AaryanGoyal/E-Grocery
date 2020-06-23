@@ -19,29 +19,34 @@ def execute_query(connection,query,args):
         print(f"The error '{e}' occurred")
         return
 
-def Login():
-    name=name_var.get()
+def signup():
     number=number_var.get()
-    print(name,number)
+    password=password_var.get()
+    type=type_var.get()
+    print(number,password,type)
     
-    query="""INSERT INTO testing (Name,Number) 
-                         VALUES (%s,%s)"""
-    args=(name,number)
+    query="""INSERT INTO LoginData (Number,Password,Type) 
+                         VALUES (%s,%s,%s)"""
+    args=(number,password,type)
     execute_query(mydb,query,args)
     return
 
-loginpage=Tk()  
-loginpage.geometry('400x150')  
-loginpage.title('Tkinter Login Form - Details')
+signuppage=Tk()  
+signuppage.geometry('400x150')  
+signuppage.title('Tkinter Signup Form - Details')
 
-nameLabel = Label(loginpage, text="Name").grid(row=0, column=0)
-name_var= StringVar()
-nameEntry = Entry(loginpage, textvariable=name_var).grid(row=0, column=1)
-
-numberLabel = Label(loginpage,text="Phone Number").grid(row=1, column=0)  
+numberLabel = Label(signuppage, text="Number").grid(row=0, column=0)
 number_var= StringVar()
-numberEntry = Entry(loginpage, textvariable=number_var).grid(row=1, column=1)
+numberEntry = Entry(signuppage, textvariable=number_var).grid(row=0, column=1)
 
-loginButton = Button(loginpage, text="Login", command=Login).grid(row=4, column=0)
+passwordLabel = Label(signuppage,text="Password").grid(row=1, column=0)  
+password_var= StringVar()
+passwordEntry = Entry(signuppage, textvariable=password_var, show="*").grid(row=1, column=1)
 
-loginpage.mainloop()
+type_var=StringVar()
+customerButton=Radiobutton(signuppage,text="Customer",value="customer",variable=type_var).grid(row=2, column=5)
+shopkeeperButton=Radiobutton(signuppage,text="Shopkeeper",value="shopkeeper",variable=type_var).grid(row=3, column=5)
+
+signupButton = Button(signuppage, text="Sign up", command=signup).grid(row=6, column=0)
+
+signuppage.mainloop()
