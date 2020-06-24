@@ -1,5 +1,6 @@
 from tkinter import *
 import mysql.connector
+from mysql.connector import Error
 
 mydb = mysql.connector.connect(
     host="remotemysql.com",
@@ -9,15 +10,16 @@ mydb = mysql.connector.connect(
 
 print(mydb)
 
-def execute_query(connection,query,args):
-    cursor = connection.cursor()
-    try:
-        cursor.execute(query,args)
-        connection.commit()
-        print("Query executed successfully")
-    except Error as e:
-        print(f"The error '{e}' occurred")
-        return
+class Sql():
+
+    def __init__(self,query,args):
+        self.cursor=mydb.cursor()
+        try:
+            self.cursor.execute(query,args)
+            print("Query executed successfully")
+        except Error as e:
+            print("The error '{e}' occurred")
+            return
 
 
 class Welcome():
@@ -62,17 +64,21 @@ class Login():
         self.password=self.password_var.get()
         print(self.number,self.password)
         
-        query="""SELECT Password FROM LoginData where Number=?"""
-        args=(self.number)
-        execute_query(mydb,query,args)
-        password_check= cursor.fetchall()
-        if password_check==password:
-            print("succesful")
+        query="""SELECT Password FROM LoginData where Number=%s"""
+        args=(self.number,)
+        password_check=Sql(query,args)
+        password1=password_check.cursor.fetchone()
+       
+        if password1[0]==self.password:
+            print(password1[0],"correct")
+            query="""SELECT Name,Type FROM LoginData where Number=%s"""
+            args=(self.number,)
+            succesful_login=Sql(query,args)
+            succesful_message=succesful_login.cursor.fetchall()
+            print("Hello",succesful_message[0][0],"you are a",succesful_message[0][1],"its good to see you")
+            
         else:
-            print("unsuccesful")
-
-   
-
+            print("wrong")
 
 class Signup():
     
@@ -110,7 +116,8 @@ class Signup():
         query="""INSERT INTO LoginData (Number,Password,Type,Name) 
                              VALUES (%s,%s,%s,%s)"""
         args=(self.number,self.password,self.type,self.name)
-        execute_query(mydb,query,args)
+        signin=Sql(query,args)
+        mydb.commit()
         return
 
 
