@@ -1,0 +1,17 @@
+{
+    "sqltools.connections": [
+        {
+            "database": "dIDu0XCFUx",
+            "driver": "MySQL",
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "name": "Project cs Sql",
+            "password": "0b0tyuI5rw",
+            "port": 3306,
+            "previewLimit": 50,
+            "server": "remotemysql.com",
+            "username": "dIDu0XCFUx"
+        }
+    ]
+}
