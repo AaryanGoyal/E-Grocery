@@ -6,7 +6,7 @@
             "mysqlOptions": {
                 "authProtocol": "default"
             },
-            "name": "Project cs Sql",
+            "name": "CS Project SQL",
             "password": "0b0tyuI5rw",
             "port": 3306,
             "previewLimit": 50,
