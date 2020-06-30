@@ -69,7 +69,7 @@ class Login():
         args=(Welcome.number,)
         password_check=Sql(query,args)
         password_correct=password_check.cursor.fetchone()
-       
+        
         if password_correct[0]==self.password:
             print(password_correct[0],"correct")
 
@@ -145,7 +145,6 @@ class Signup():
         root1=Toplevel()
         customer=Customer(root1)
 
-
     def gotoShopkeeper(self):
         self.master.destroy()
         root1=Toplevel()
@@ -154,7 +153,6 @@ class Signup():
 
 class Customer():
     
-    number=""
     def __init__(self,master):
         self.master=master
         self.master.geometry('500x150')
@@ -208,3 +206,5 @@ root.withdraw()
 root1=Tk()
 welcome=Welcome(root1)
 root.mainloop()
+#https://www.youtube.com/watch?v=HSyERXCiAtI
+
