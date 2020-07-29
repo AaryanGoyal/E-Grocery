@@ -1,4 +1,5 @@
 from tkinter import *
+import tkinter.ttk as ttk
 import mysql.connector
 from mysql.connector import Error
 
@@ -158,24 +159,38 @@ class Customer():
         self.master.geometry('500x150')
         self.master.title('Customer Page')
 
-        self.Label = Label(self.master, text="Hello Customer, Please Enter the Item and Quntity you require").grid(row=0, column=0)
+        frame=LabelFrame(self.master, text='Place new order')
+        frame.grid(row=0,column=1)
 
-        self.itemLabel = Label(self.master,text="Item").grid(row=1, column=0) 
+        self.itemLabel = Label(frame,text="Item").grid(row=1, column=0) 
         self.item_var= StringVar() 
-        self.itemEntry = Entry(self.master, textvariable=self.item_var).grid(row=1, column=1)
+        self.itemEntry = Entry(frame, textvariable=self.item_var).grid(row=1, column=1)
 
-        self.quantityLabel = Label(self.master,text="Quantity").grid(row=2, column=0)
+        self.quantityLabel = Label(frame,text="Quantity").grid(row=2, column=0)
         self.quantity_var= StringVar()          
-        self.quantityEntry = Entry(self.master, textvariable=self.quantity_var).grid(row=2, column=1)
+        self.quantityEntry = Entry(frame, textvariable=self.quantity_var).grid(row=2, column=1)
         
-        self.orderButton = Button(self.master, text="Place Order", command=self.placeOrder).grid(row=3, column=1)
+        self.orderButton = Button(frame, text="Place Order", command=self.placeOrder).grid(row=3, column=1)
+
+        tree=ttk.Treeview(self.master)
+        tree.grid(row=6,column=7)
+
+        tree['column']=("column1","column2")
+        tree['show'] ='headings'
+
+        tree.column("column1", width=100, minwidth=75)
+        tree.column("column2", width=100, minwidth=75)
+
+        tree.heading("column1", text="ITEM",anchor=W)
+        tree.heading("column2", text="QUANTITY",anchor=W)
+
+        Row1=tree.insert("",1,text ="L1",values =(self.item,self.quantity))
 
     def placeOrder(self):
         self.item=self.item_var.get()
         self.quantity=self.quantity_var.get()
 
         print(Welcome.number,self.item,self.quantity)
-
         query="""INSERT INTO OrderData (Number,Item,Quantity) VALUES (%s,%s,%s)"""
         args=(Welcome.number,self.item,self.quantity)
         placeorder=Sql(query,args)
@@ -192,13 +207,30 @@ class Shopkeeper():
 
         self.Label = Label(self.master, text="Hello Shopkeeper, These are the order:-").grid(row=0, column=0)
 
-        self.itemLabel = Label(self.master,text="Item").grid(row=1, column=0) 
-        self.item_var= StringVar() 
-        self.itemEntry = Entry(self.master, textvariable=self.item_var).grid(row=1, column=1)
+        self.vieworderbutton= Button(self.master,text="View Orders",command=self.viewOrder).grid(row=1,column=1)
 
-        self.quantityLabel = Label(self.master,text="Quantity").grid(row=2, column=0)
-        self.quantity_var= StringVar()          
-        self.quantityEntry = Entry(self.master, textvariable=self.quantity_var).grid(row=2, column=1)
+        tree=ttk.Treeview(self.master)
+        tree.grid(row=6,column=7)
+
+        tree['column']=("column1","column2")
+        tree['show'] ='headings'
+
+        tree.column("column1", width=100, minwidth=75)
+        tree.column("column2", width=100, minwidth=75)
+
+        tree.heading("column1", text="ITEM",anchor=W)
+        tree.heading("column2", text="QUANTITY",anchor=W)
+
+        Row1=tree.insert("",1,text ="L1",values =(self.item,self.quantity))
+    def viewOrder(self):
+        query="""SELECT * FROM OrderData"""
+        args=()
+        orderdata=Sql(query,args)
+        orderdatadisplay=orderdata.cursor.fetchall()
+        print(orderdatadisplay)
+        
+
+
 
 
 root=Tk()
