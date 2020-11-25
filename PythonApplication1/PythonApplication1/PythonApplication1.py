@@ -175,16 +175,27 @@ class Customer():
         tree=ttk.Treeview(self.master)
         tree.grid(row=6,column=7)
 
-        tree['column']=("column1","column2")
+        tree['column']=("column1","column2","column3")
         tree['show'] ='headings'
 
         tree.column("column1", width=100, minwidth=75)
         tree.column("column2", width=100, minwidth=75)
+        tree.column("column3", width=100, minwidth=75)
 
-        tree.heading("column1", text="ITEM",anchor=W)
-        tree.heading("column2", text="QUANTITY",anchor=W)
 
-        Row1=tree.insert("",1,text ="L1",values =(self.item,self.quantity))
+        tree.heading("column1", text="ORDER.NO",anchor=W)
+        tree.heading("column2", text="ITEMNAME",anchor=W)
+        tree.heading("column3", text="QUANTITY",anchor=W)
+
+        query="""SELECT * FROM OrderData"""
+        args=()
+        orderdata=Sql(query,args)
+        orderDataDisplay=orderdata.cursor.fetchall()
+        print(orderDataDisplay)
+
+        for i in orderDataDisplay:
+            tree.insert("","end",values=((i[0]),(i[2]),(i[3])))
+
 
     def placeOrder(self):
         self.item=self.item_var.get()
@@ -196,7 +207,7 @@ class Customer():
         placeorder=Sql(query,args)
         mydb.commit()
     
-
+    
 class Shopkeeper():
     
     number=""
