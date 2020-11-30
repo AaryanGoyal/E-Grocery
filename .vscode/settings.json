@@ -13,5 +13,6 @@
             "server": "remotemysql.com",
             "username": "dIDu0XCFUx"
         }
-    ]
+    ],
+    "jupyter.jupyterServerType": "local"
 }
