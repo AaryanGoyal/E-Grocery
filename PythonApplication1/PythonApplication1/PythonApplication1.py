@@ -5,9 +5,9 @@ from mysql.connector import Error
 
 mydb = mysql.connector.connect(
     host="remotemysql.com",
-    user="dIDu0XCFUx",
-    password="0b0tyuI5rw",
-    database="dIDu0XCFUx")
+    user="V2wcYPWEoG",
+    password="h3zp3K7DHj",
+    database="V2wcYPWEoG")
 print(mydb)
 
 
@@ -30,8 +30,8 @@ class Welcome():
         self.master=master
         self.master.geometry('400x150')  
         self.master.title('WELCOME')
-        self.button1 = Button(self.master, text="Login", command=self.gotoLogin).grid(row=4, column=0)
-        self.button2 = Button(self.master, text="Signup", command=self.gotoSignup).grid(row=6, column=0)
+        self.button1 = Button(self.master, text="Login", command=self.gotoLogin).grid(row=0, column=0, sticky=CENTER )
+        self.button2 = Button(self.master, text="Signup", command=self.gotoSignup).grid(row=0, column=0)
 
     def gotoSignup(self):
         self.master.destroy()
@@ -59,7 +59,7 @@ class Login():
         self.password_var= StringVar()
         self.passwordEntry = Entry(self.master, textvariable=self.password_var, show="*").grid(row=1, column=1)
 
-        self.loginButton = Button(self.master, text="Log In", command=self.login).grid(row=6, column=3)
+        self.loginButton = Button(self.master, text="Log In", command=self.login).grid(row=2, column=1)
 
     def login(self):
         Welcome.number=self.number_var.get()
@@ -152,7 +152,7 @@ class Signup():
         shopkeeper=Shopkeeper(root1)
         return
 
-class Customer():
+class Customer():#most probably not complete check and complete 
     
     def __init__(self,master):
         self.master=master
@@ -164,37 +164,45 @@ class Customer():
 
         self.itemLabel = Label(frame,text="Item").grid(row=1, column=0) 
         self.item_var= StringVar() 
-        self.itemEntry = Entry(frame, textvariable=self.item_var).grid(row=1, column=1)
-
+        self.itemEntry = Entry(frame, textvariable=self.item_var)
+        self.itemEntry.grid(row=1, column=1)
+        
         self.quantityLabel = Label(frame,text="Quantity").grid(row=2, column=0)
         self.quantity_var= StringVar()          
-        self.quantityEntry = Entry(frame, textvariable=self.quantity_var).grid(row=2, column=1)
-        
+        self.quantityEntry = Entry(frame, textvariable=self.quantity_var)
+        self.quantityEntry.grid(row=2, column=1)
+
+        self.viewOrder()
         self.orderButton = Button(frame, text="Place Order", command=self.placeOrder).grid(row=3, column=1)
 
-        tree=ttk.Treeview(self.master)
-        tree.grid(row=6,column=7)
+    def viewOrder(self):
+        self.tree=ttk.Treeview(self.master)
+        self.tree.grid(row=6,column=1)
+        self.scrollbar = ttk.Scrollbar(window,orient ="vertical",command = selftree.yview)
 
-        tree['column']=("column1","column2","column3")
-        tree['show'] ='headings'
+        self.tree['column']=("column1","column2","column3","column4")
+        self.tree['show'] ='headings'
 
-        tree.column("column1", width=100, minwidth=75)
-        tree.column("column2", width=100, minwidth=75)
-        tree.column("column3", width=100, minwidth=75)
+        self.tree.column("column1", width=100, minwidth=75)
+        self.tree.column("column2", width=100, minwidth=75)
+        self.tree.column("column3", width=100, minwidth=75)
+        self.tree.column("column4", width=100, minwidth=75)
 
 
-        tree.heading("column1", text="ORDER.NO",anchor=W)
-        tree.heading("column2", text="ITEMNAME",anchor=W)
-        tree.heading("column3", text="QUANTITY",anchor=W)
+        self.tree.heading("column1", text="S.NO",anchor=W)
+        self.tree.heading("column2", text="Order ID",anchor=W)
+        self.tree.heading("column3", text="ITEM NAME",anchor=W)
+        self.tree.heading("column4", text="QUANTITY",anchor=W)
 
-        query="""SELECT * FROM OrderData"""
-        args=()
+        query="""SELECT * FROM OrderData WHERE Number=%s"""
+        args=(Welcome.number,)
         orderdata=Sql(query,args)
         orderDataDisplay=orderdata.cursor.fetchall()
         print(orderDataDisplay)
-
+        self.serial=0
         for i in orderDataDisplay:
-            tree.insert("","end",values=((i[0]),(i[2]),(i[3])))
+            self.serial+=1
+            self.tree.insert("","end",values=((self.serial),(i[0]),(i[2]),(i[3])))
 
 
     def placeOrder(self):
@@ -206,7 +214,11 @@ class Customer():
         args=(Welcome.number,self.item,self.quantity)
         placeorder=Sql(query,args)
         mydb.commit()
-    
+        self.itemEntry.delete(0,'end')
+        self.quantityEntry.delete(0,'end')
+        self.viewOrder()
+
+
     
 class Shopkeeper():
     
@@ -216,7 +228,7 @@ class Shopkeeper():
         self.master.geometry('500x150')
         self.master.title('Customer Page')
 
-        self.Label = Label(self.master, text="Hello Shopkeeper, These are the order:-").grid(row=0, column=0)
+        self.Label = Label(self.master, text="Hello Shopkeeper, These are the order:-").grid(row=0, column=0)#put name of user instead of shopkeeper
 
         self.vieworderbutton= Button(self.master,text="View Orders",command=self.viewOrder).grid(row=1,column=1)
 
