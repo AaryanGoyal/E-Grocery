@@ -30,7 +30,7 @@ class Welcome():
         self.master=master
         self.master.geometry('400x150')  
         self.master.title('WELCOME')
-        self.button1 = Button(self.master, text="Login", command=self.gotoLogin).grid(row=0, column=0, sticky=CENTER )
+        self.button1 = Button(self.master, text="Login", command=self.gotoLogin).grid(row=0, column=1)
         self.button2 = Button(self.master, text="Signup", command=self.gotoSignup).grid(row=0, column=0)
 
     def gotoSignup(self):
@@ -178,7 +178,81 @@ class Customer():#most probably not complete check and complete
     def viewOrder(self):
         self.tree=ttk.Treeview(self.master)
         self.tree.grid(row=6,column=1)
-        self.scrollbar = ttk.Scrollbar(window,orient ="vertical",command = selftree.yview)
+
+        self.tree['column']=("column1","column2","column3","column4","column5")
+        self.tree['show'] ='headings'
+
+        self.tree.column("column1", width=100, minwidth=75)
+        self.tree.column("column2", width=100, minwidth=75)
+        self.tree.column("column3", width=100, minwidth=75)
+        self.tree.column("column4", width=100, minwidth=75)
+        self.tree.column("column5", width=100, minwidth=75)
+
+
+        self.tree.heading("column1", text="S.NO",anchor=W)
+        self.tree.heading("column2", text="Order ID",anchor=W)
+        self.tree.heading("column3", text="Item Name",anchor=W)
+        self.tree.heading("column4", text="Quantity",anchor=W)
+        self.tree.heading("column5", text="Completed By",anchor=W)
+
+        query="""SELECT * FROM OrderData WHERE Number=%s"""
+        args=(Welcome.number,)
+        orderdata=Sql(query,args)
+        orderDataDisplay=orderdata.cursor.fetchall()
+        print(orderDataDisplay)
+        self.serial=0
+        for i in orderDataDisplay:
+            self.serial+=1
+            self.tree.insert("","end",values=((self.serial),(i[0]),(i[2]),(i[3]),(i[4])))
+
+
+    def placeOrder(self):
+        self.item=self.item_var.get()
+        self.quantity=self.quantity_var.get()
+
+        print(Welcome.number,self.item,self.quantity)
+        query="""INSERT INTO OrderData (Number,Item,Quantity,Completed) VALUES (%s,%s,%s,"Pending")"""
+        args=(Welcome.number,self.item,self.quantity)
+        placeorder=Sql(query,args)
+        mydb.commit()
+        self.itemEntry.delete(0,'end')
+        self.quantityEntry.delete(0,'end')
+        self.viewOrder()
+
+
+    
+class Shopkeeper():
+    
+    def __init__(self,master):
+        self.master=master
+        self.master.geometry('400x150')  
+        self.master.title('WELCOME')
+        self.button1 = Button(self.master, text="View Orders", command=self.gotoOrder).grid(row=0, column=0)
+        self.button2 = Button(self.master, text="View Profit Summary", command=self.gotoSummary).grid(row=1, column=0)
+    def gotoOrder(self):
+        root1=Toplevel()
+        order=ShopView(root1)
+
+    def gotoSummary(self):
+        root1=Toplevel()
+        login=ShopSummary(root1)
+
+
+
+
+class ShopView():
+    
+    def __init__(self,master):
+        self.master=master
+        self.master.geometry('500x150')
+        self.master.title('View Order')
+
+        self.Label = Label(self.master, text="Hello Shopkeeper, These are the orders:-").grid(row=0, column=0)#put name of user instead of shopkeeper
+        self.viewOrder()
+
+    def viewOrder(self):
+        self.tree=ttk.Treeview(self.master)
+        self.tree.grid(row=6,column=1)
 
         self.tree['column']=("column1","column2","column3","column4")
         self.tree['show'] ='headings'
@@ -191,11 +265,11 @@ class Customer():#most probably not complete check and complete
 
         self.tree.heading("column1", text="S.NO",anchor=W)
         self.tree.heading("column2", text="Order ID",anchor=W)
-        self.tree.heading("column3", text="ITEM NAME",anchor=W)
-        self.tree.heading("column4", text="QUANTITY",anchor=W)
+        self.tree.heading("column3", text="Item Name",anchor=W)
+        self.tree.heading("column4", text="Quantity",anchor=W)
 
-        query="""SELECT * FROM OrderData WHERE Number=%s"""
-        args=(Welcome.number,)
+        query="""SELECT * FROM OrderData WHERE Completed=%s """
+        args=("Pending",)
         orderdata=Sql(query,args)
         orderDataDisplay=orderdata.cursor.fetchall()
         print(orderDataDisplay)
@@ -205,53 +279,37 @@ class Customer():#most probably not complete check and complete
             self.tree.insert("","end",values=((self.serial),(i[0]),(i[2]),(i[3])))
 
 
-    def placeOrder(self):
-        self.item=self.item_var.get()
-        self.quantity=self.quantity_var.get()
-
-        print(Welcome.number,self.item,self.quantity)
-        query="""INSERT INTO OrderData (Number,Item,Quantity) VALUES (%s,%s,%s)"""
-        args=(Welcome.number,self.item,self.quantity)
-        placeorder=Sql(query,args)
-        mydb.commit()
-        self.itemEntry.delete(0,'end')
-        self.quantityEntry.delete(0,'end')
-        self.viewOrder()
 
 
-    
-class Shopkeeper():
-    
-    number=""
-    def __init__(self,master):
+
+class ShopSummary():
+
+     def __init__():
         self.master=master
         self.master.geometry('500x150')
-        self.master.title('Customer Page')
+        self.master.title('View Summary')
 
-        self.Label = Label(self.master, text="Hello Shopkeeper, These are the order:-").grid(row=0, column=0)#put name of user instead of shopkeeper
+        self.Label = Label(self.master, text="Hello Shopkeeper, This is the profit summary till now:-").grid(row=0, column=0)#put name of user instead of shopkeeper
+        self.viewSummary()
 
-        self.vieworderbutton= Button(self.master,text="View Orders",command=self.viewOrder).grid(row=1,column=1)
 
-        tree=ttk.Treeview(self.master)
-        tree.grid(row=6,column=7)
 
-        tree['column']=("column1","column2")
-        tree['show'] ='headings'
 
-        tree.column("column1", width=100, minwidth=75)
-        tree.column("column2", width=100, minwidth=75)
+#shopsummarrytobecompleted 
 
-        tree.heading("column1", text="ITEM",anchor=W)
-        tree.heading("column2", text="QUANTITY",anchor=W)
 
-        Row1=tree.insert("",1,text ="L1",values =(self.item,self.quantity))
-    def viewOrder(self):
-        query="""SELECT * FROM OrderData"""
-        args=()
-        orderdata=Sql(query,args)
-        orderdatadisplay=orderdata.cursor.fetchall()
-        print(orderdatadisplay)
-        
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
