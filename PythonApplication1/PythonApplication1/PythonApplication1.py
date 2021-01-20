@@ -152,7 +152,7 @@ class Signup():
         shopkeeper=Shopkeeper(root1)
         return
 
-class Customer():#most probably not complete check and complete 
+class Customer():
     
     def __init__(self,master):
         self.master=master
@@ -174,6 +174,21 @@ class Customer():#most probably not complete check and complete
 
         self.viewOrder()
         self.orderButton = Button(frame, text="Place Order", command=self.placeOrder).grid(row=3, column=1)
+        
+        query="""SELECT Item FROM ItemData"""
+        args=()
+        itemdata=Sql(query,args)
+        itemDataDisplay=itemdata.cursor.fetchall()
+        print(itemDataDisplay)
+
+
+        self.itemchosen = ttk.Combobox(frame, width = 27,values=itemDataDisplay).grid(column = 1, row = 5)
+
+
+       
+        
+
+
 
     def viewOrder(self):
         self.tree=ttk.Treeview(self.master)
@@ -254,21 +269,23 @@ class ShopView():
         self.tree=ttk.Treeview(self.master)
         self.tree.grid(row=6,column=1)
 
-        self.tree['column']=("column1","column2","column3","column4")
+        self.tree['column']=("column1","column2","column3","column4","column5")
         self.tree['show'] ='headings'
 
         self.tree.column("column1", width=100, minwidth=75)
         self.tree.column("column2", width=100, minwidth=75)
         self.tree.column("column3", width=100, minwidth=75)
         self.tree.column("column4", width=100, minwidth=75)
+        self.tree.column("column5", width=100, minwidth=75)
 
 
         self.tree.heading("column1", text="S.NO",anchor=W)
         self.tree.heading("column2", text="Order ID",anchor=W)
         self.tree.heading("column3", text="Item Name",anchor=W)
         self.tree.heading("column4", text="Quantity",anchor=W)
+        self.tree.heading("column5", text="Delivery to",anchor=W)
 
-        query="""SELECT * FROM OrderData WHERE Completed=%s """
+        query="""SELECT OrderData.`Order ID`,OrderData.Item,OrderData.Quantity,LoginData.Name,LoginData.Number FROM OrderData INNER JOIN LoginData ON OrderData.Number=LoginData.Number WHERE OrderData.Completed=%s"""
         args=("Pending",)
         orderdata=Sql(query,args)
         orderDataDisplay=orderdata.cursor.fetchall()
@@ -276,7 +293,7 @@ class ShopView():
         self.serial=0
         for i in orderDataDisplay:
             self.serial+=1
-            self.tree.insert("","end",values=((self.serial),(i[0]),(i[2]),(i[3])))
+            self.tree.insert("","end",values=((self.serial),(i[0]),(i[1]),(i[2]),(i[3],i[4])))
 
 
 
@@ -284,7 +301,7 @@ class ShopView():
 
 class ShopSummary():
 
-     def __init__():
+     def __init__(self,master):
         self.master=master
         self.master.geometry('500x150')
         self.master.title('View Summary')
