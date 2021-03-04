@@ -1,8 +1,8 @@
 from tkinter import *
 import tkinter.ttk as ttk
 import mysql.connector
+import matplotib.pyplot as plt
 from mysql.connector import Error
-
 mydb = mysql.connector.connect(
     host="remotemysql.com",
     user="V2wcYPWEoG",
@@ -26,6 +26,7 @@ class Sql():
 class Welcome():
 
     number=""
+    name=""
     def __init__(self,master):
         self.master=master
         self.master.geometry('400x150')  
@@ -79,7 +80,8 @@ class Login():
             succesful_login=Sql(query,args)
             succesful_message=succesful_login.cursor.fetchall()
             print("Hello",succesful_message[0][0],"you are a",succesful_message[0][1],"its good to see you")
-
+            Welcome.name=succesful_message[0][0]
+            
             if succesful_message[0][1]=="customer":
                 self.gotoCustomer()
             else:
@@ -130,7 +132,8 @@ class Signup():
         self.type=self.type_var.get()
         self.name=self.name_var.get()
         print(Welcome.number,self.password,self.type,self.name)
-    
+        Welcome.name=self.name
+
         query="""INSERT INTO LoginData (Number,Password,Type,Name) VALUES (%s,%s,%s,%s)"""
         args=(Welcome.number,self.password,self.type,self.name)
         signin=Sql(query,args)
@@ -162,11 +165,19 @@ class Customer():
         frame=LabelFrame(self.master, text='Place new order')
         frame.grid(row=0,column=1)
 
+
+        query="""SELECT Item FROM ItemData"""
+        args=()
+        itemdata=Sql(query,args)
+        itemDataDisplay=itemdata.cursor.fetchall()
+        itemDataDisplay.insert(0,("Please Select Item",))
+        print(itemDataDisplay)
+
         self.itemLabel = Label(frame,text="Item").grid(row=1, column=0) 
-        self.item_var= StringVar() 
-        self.itemEntry = Entry(frame, textvariable=self.item_var)
-        self.itemEntry.grid(row=1, column=1)
-        
+        self.itemchosen = ttk.Combobox(frame, width = 27,values=itemDataDisplay)
+        self.itemchosen.grid(row = 1, column = 1)
+        self.itemchosen.current(0)
+
         self.quantityLabel = Label(frame,text="Quantity").grid(row=2, column=0)
         self.quantity_var= StringVar()          
         self.quantityEntry = Entry(frame, textvariable=self.quantity_var)
@@ -174,21 +185,6 @@ class Customer():
 
         self.viewOrder()
         self.orderButton = Button(frame, text="Place Order", command=self.placeOrder).grid(row=3, column=1)
-        
-        query="""SELECT Item FROM ItemData"""
-        args=()
-        itemdata=Sql(query,args)
-        itemDataDisplay=itemdata.cursor.fetchall()
-        print(itemDataDisplay)
-
-
-        self.itemchosen = ttk.Combobox(frame, width = 27,values=itemDataDisplay).grid(column = 1, row = 5)
-
-
-       
-        
-
-
 
     def viewOrder(self):
         self.tree=ttk.Treeview(self.master)
@@ -222,7 +218,7 @@ class Customer():
 
 
     def placeOrder(self):
-        self.item=self.item_var.get()
+        self.item=self.itemchosen.get()
         self.quantity=self.quantity_var.get()
 
         print(Welcome.number,self.item,self.quantity)
@@ -230,7 +226,7 @@ class Customer():
         args=(Welcome.number,self.item,self.quantity)
         placeorder=Sql(query,args)
         mydb.commit()
-        self.itemEntry.delete(0,'end')
+        self.itemchosen.current(0)
         self.quantityEntry.delete(0,'end')
         self.viewOrder()
 
@@ -254,7 +250,6 @@ class Shopkeeper():
 
 
 
-
 class ShopView():
     
     def __init__(self,master):
@@ -262,12 +257,33 @@ class ShopView():
         self.master.geometry('500x150')
         self.master.title('View Order')
 
-        self.Label = Label(self.master, text="Hello Shopkeeper, These are the orders:-").grid(row=0, column=0)#put name of user instead of shopkeeper
+        self.Label = Label(self.master, text="Hello "+Welcome.name+" These are the orders:-").grid(row=0, column=0)
+        self.viewOrder()
+
+        frame=LabelFrame(self.master, text='Completed Order')
+        frame.grid(row=2,column=0)
+
+        self.orderCompLabel = Label(frame,text="Enter Order ID").grid(row=0, column=0)
+        self.orderComp_var= StringVar()  
+        self.orderCompEntry = Entry(frame, textvariable=self.orderComp_var)
+        self.orderCompEntry.grid(row=0, column=1)
+        self.orderCompButton = Button(frame, text="Order Completed", command=self.OrderComp).grid(row=1, column=1)
+
+    
+    def OrderComp(self):
+        self.orderComp_ID=self.orderComp_var.get()
+        
+        query=""" UPDATE OrderData SET Completed=%s WHERE `Order ID`=%s"""
+        args=(Welcome.name,self.orderComp_ID)
+        print(args)
+        completeorder=Sql(query,args)
+        mydb.commit()
+        self.orderCompEntry.delete(0,'end')
         self.viewOrder()
 
     def viewOrder(self):
         self.tree=ttk.Treeview(self.master)
-        self.tree.grid(row=6,column=1)
+        self.tree.grid(row=1,column=0)
 
         self.tree['column']=("column1","column2","column3","column4","column5")
         self.tree['show'] ='headings'
@@ -301,16 +317,32 @@ class ShopView():
 
 class ShopSummary():
 
-     def __init__(self,master):
+    def __init__(self,master):
         self.master=master
         self.master.geometry('500x150')
         self.master.title('View Summary')
 
-        self.Label = Label(self.master, text="Hello Shopkeeper, This is the profit summary till now:-").grid(row=0, column=0)#put name of user instead of shopkeeper
+        self.Label = Label(self.master, text=("Hello "+Welcome.name+" This is the profit summary till now:-")).grid(row=0, column=0)
         self.viewSummary()
 
+    def viewSummary(self):
 
+        query="""SELECT OrderData.Item,OrderData.Quantity,ItemData.Price FROM OrderData INNER JOIN ItemData ON OrderData.Item=ItemData.Item WHERE OrderData.Completed=%s"""
+        args=(Welcome.name,)
+        summary=Sql(query,args)
+        summaryDisplayData=summary.cursor.fetchall()
+        print(summaryDisplayData)
+        Xaxis=[x[0] for x in summaryDisplayData]
+        Yaxis=[x[1]*x[2] for x in summaryDisplayData]
 
+        fig= plt.figure()
+        plt.title("Profit Summary")
+        ax= fig.add_axes([0,0,1,1])
+        ax.bar(Xaxis,Yaxis)
+        plt.xlabel("Items")
+        plt.ylabel("total earnings")
+        plt.show
+        
 
 #shopsummarrytobecompleted 
 
