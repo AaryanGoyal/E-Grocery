@@ -11,6 +11,7 @@ mydb = mysql.connector.connect(
 print(mydb)
 
 
+
 class Sql():
 
     def __init__(self,query,args):
@@ -21,6 +22,7 @@ class Sql():
         except Error as e:
             print("The error '{e}' occurred")
             return
+
 
 
 class Welcome():
@@ -43,6 +45,7 @@ class Welcome():
         self.master.destroy()
         root1=Toplevel()
         login=Login(root1)
+
 
 
 class Login():
@@ -100,6 +103,8 @@ class Login():
         root1=Toplevel()
         shopkeeper=Shopkeeper(root1)
 
+
+
 class Signup():
     
     def __init__(self,master):
@@ -121,8 +126,8 @@ class Signup():
         self.nameEntry = Entry(self.master, textvariable=self.name_var).grid(row=2, column=1)
 
         self.type_var=StringVar(value="1")
-        self.customerButton=Radiobutton(self.master,text="Customer",value="customer",variable=self.type_var).grid(row=3, column=5)
-        self.shopkeeperButton=Radiobutton(self.master,text="Shopkeeper",value="shopkeeper",variable=self.type_var).grid(row=4, column=5)
+        self.customerButton=Radiobutton(self.master,text="Customer",value="customer",variable=self.type_var).grid(row=3, column=1)
+        self.shopkeeperButton=Radiobutton(self.master,text="Shopkeeper",value="shopkeeper",variable=self.type_var).grid(row=4, column=1)
 
         self.signupButton = Button(self.master, text="Sign up", command=self.signup).grid(row=6, column=3)
 
@@ -155,11 +160,13 @@ class Signup():
         shopkeeper=Shopkeeper(root1)
         return
 
+
+
 class Customer():
     
     def __init__(self,master):
         self.master=master
-        self.master.geometry('500x150')
+        self.master.geometry('505x350')
         self.master.title('Customer Page')
 
         frame=LabelFrame(self.master, text='Place new order')
@@ -239,14 +246,35 @@ class Shopkeeper():
         self.master.geometry('400x150')  
         self.master.title('WELCOME')
         self.button1 = Button(self.master, text="View Orders", command=self.gotoOrder).grid(row=0, column=0)
-        self.button2 = Button(self.master, text="View Profit Summary", command=self.gotoSummary).grid(row=1, column=0)
+        self.button2 = Button(self.master, text="View Profit Summary", command=self.viewSummary).grid(row=1, column=0)
     def gotoOrder(self):
         root1=Toplevel()
         order=ShopView(root1)
 
-    def gotoSummary(self):
-        root1=Toplevel()
-        login=ShopSummary(root1)
+    def viewSummary(self):
+    
+        query="""SELECT OrderData.Item,OrderData.Quantity,ItemData.Price FROM OrderData INNER JOIN ItemData ON OrderData.Item=ItemData.Item WHERE OrderData.Completed=%s"""
+        args=(Welcome.name,)
+        summary=Sql(query,args)
+        summaryDisplayData=summary.cursor.fetchall()
+        print(summaryDisplayData)
+        graphDict={}
+        for x in summaryDisplayData:
+            graphDict[x[0]]=0
+
+        for x in summaryDisplayData:
+            graphDict[x[0]]+=int(x[1])*int(x[2])
+        print(graphDict)
+        
+        Xaxis=[x for x in graphDict]
+        Yaxis=[graphDict[x] for x in graphDict]
+
+        fig= plt.figure()
+        plt.title("Profit Summary")
+        plt.bar(Xaxis,Yaxis)
+        plt.xlabel("Items")
+        plt.ylabel("total earnings")
+        plt.show()
 
 
 
@@ -254,7 +282,7 @@ class ShopView():
     
     def __init__(self,master):
         self.master=master
-        self.master.geometry('500x150')
+        self.master.geometry('510x350')
         self.master.title('View Order')
 
         self.Label = Label(self.master, text="Hello "+Welcome.name+" These are the orders:-").grid(row=0, column=0)
@@ -309,10 +337,7 @@ class ShopView():
         self.serial=0
         for i in orderDataDisplay:
             self.serial+=1
-            self.tree.insert("","end",values=((self.serial),(i[0]),(i[1]),(i[2]),(i[3],i[4])))
-
-
-
+            self.tree.insert("","end",values=((self.serial),(i[0]),(i[1]),(i[2]),(i[3]+" {"+i[4]+"}")))
 
 
 class ShopSummary():
@@ -332,8 +357,16 @@ class ShopSummary():
         summary=Sql(query,args)
         summaryDisplayData=summary.cursor.fetchall()
         print(summaryDisplayData)
-        Xaxis=[x[0] for x in summaryDisplayData]
-        Yaxis=[int(x[1])*int(x[2]) for x in summaryDisplayData]
+        graphDict={}
+        for x in summaryDisplayData:
+            graphDict[x[0]]=0
+
+        for x in summaryDisplayData:
+            graphDict[x[0]]+=int(x[1])*int(x[2])
+        print(graphDict)
+        
+        Xaxis=[x for x in graphDict]
+        Yaxis=[graphDict[x] for x in graphDict]
 
         fig= plt.figure()
         plt.title("Profit Summary")
@@ -343,29 +376,10 @@ class ShopSummary():
         plt.show()
         
 
-#shopsummarrytobecompleted 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 root=Tk()
 root.withdraw()
 root1=Tk()
 welcome=Welcome(root1)
 root.mainloop()
-#https://www.youtube.com/watch?v=HSyERXCiAtI
+
 
