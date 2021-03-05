@@ -1,7 +1,7 @@
 from tkinter import *
 import tkinter.ttk as ttk
 import mysql.connector
-import matplotib.pyplot as plt
+import matplotlib.pyplot as plt
 from mysql.connector import Error
 mydb = mysql.connector.connect(
     host="remotemysql.com",
@@ -333,15 +333,14 @@ class ShopSummary():
         summaryDisplayData=summary.cursor.fetchall()
         print(summaryDisplayData)
         Xaxis=[x[0] for x in summaryDisplayData]
-        Yaxis=[x[1]*x[2] for x in summaryDisplayData]
+        Yaxis=[int(x[1])*int(x[2]) for x in summaryDisplayData]
 
         fig= plt.figure()
         plt.title("Profit Summary")
-        ax= fig.add_axes([0,0,1,1])
-        ax.bar(Xaxis,Yaxis)
+        plt.bar(Xaxis,Yaxis)
         plt.xlabel("Items")
         plt.ylabel("total earnings")
-        plt.show
+        plt.show()
         
 
 #shopsummarrytobecompleted 
