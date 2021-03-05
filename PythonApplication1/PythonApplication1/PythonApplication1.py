@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 import tkinter.ttk as ttk
 import mysql.connector
 import matplotlib.pyplot as plt
@@ -163,7 +164,7 @@ class Signup():
 
 
 class Customer():
-    
+
     def __init__(self,master):
         self.master=master
         self.master.geometry('505x350')
@@ -192,6 +193,15 @@ class Customer():
 
         self.viewOrder()
         self.orderButton = Button(frame, text="Place Order", command=self.placeOrder).grid(row=3, column=1)
+
+        def on_closing():
+            if messagebox.askokcancel("Quit", "Do you want to quit?"):
+                print("SQL Connected=",mydb.is_connected())
+                mydb.close()
+                print("SQL Connected=",mydb.is_connected())
+                print("Exiting")
+                root.destroy()
+        self.master.protocol("WM_DELETE_WINDOW", on_closing)
 
     def viewOrder(self):
         self.tree=ttk.Treeview(self.master)
@@ -238,6 +248,7 @@ class Customer():
         self.viewOrder()
 
 
+
     
 class Shopkeeper():
     
@@ -247,6 +258,17 @@ class Shopkeeper():
         self.master.title('WELCOME')
         self.button1 = Button(self.master, text="View Orders", command=self.gotoOrder).grid(row=0, column=0)
         self.button2 = Button(self.master, text="View Profit Summary", command=self.viewSummary).grid(row=1, column=0)
+    
+        def on_closing():
+            if messagebox.askokcancel("Quit", "Do you want to quit?"):
+                print("SQL Connected=",mydb.is_connected())
+                mydb.close()
+                print("SQL Connected=",mydb.is_connected())
+                print("Exiting")
+                root.destroy()
+        self.master.protocol("WM_DELETE_WINDOW", on_closing)
+    
+    
     def gotoOrder(self):
         root1=Toplevel()
         order=ShopView(root1)
