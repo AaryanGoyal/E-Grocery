@@ -36,6 +36,17 @@ class Welcome():
         self.master.title('WELCOME')
         self.button1 = Button(self.master, text="Login", command=self.gotoLogin).grid(row=0, column=1)
         self.button2 = Button(self.master, text="Signup", command=self.gotoSignup).grid(row=0, column=0)
+        
+        def on_closing():
+            if messagebox.askokcancel("Quit", "Do you want to quit?"):
+                print("SQL Connected=",mydb.is_connected())
+                mydb.close()
+                print("SQL Connected=",mydb.is_connected())
+                print("Exiting")
+                root1.destroy()
+                root.destroy()
+        self.master.protocol("WM_DELETE_WINDOW", on_closing)
+
 
     def gotoSignup(self):
         self.master.destroy()
@@ -46,7 +57,7 @@ class Welcome():
         self.master.destroy()
         root1=Toplevel()
         login=Login(root1)
-
+        
 
 
 class Login():
@@ -65,6 +76,17 @@ class Login():
         self.passwordEntry = Entry(self.master, textvariable=self.password_var, show="*").grid(row=1, column=1)
 
         self.loginButton = Button(self.master, text="Log In", command=self.login).grid(row=2, column=1)
+
+
+        def on_closing():
+            if messagebox.askokcancel("Quit", "Do you want to quit?"):
+                print("SQL Connected=",mydb.is_connected())
+                mydb.close()
+                print("SQL Connected=",mydb.is_connected())
+                print("Exiting")
+                root.destroy()
+        self.master.protocol("WM_DELETE_WINDOW", on_closing)
+
 
     def login(self):
         Welcome.number=self.number_var.get()
@@ -131,6 +153,15 @@ class Signup():
         self.shopkeeperButton=Radiobutton(self.master,text="Shopkeeper",value="shopkeeper",variable=self.type_var).grid(row=4, column=1)
 
         self.signupButton = Button(self.master, text="Sign up", command=self.signup).grid(row=6, column=3)
+
+        def on_closing():
+            if messagebox.askokcancel("Quit", "Do you want to quit?"):
+                print("SQL Connected=",mydb.is_connected())
+                mydb.close()
+                print("SQL Connected=",mydb.is_connected())
+                print("Exiting")
+                root.destroy()
+        self.master.protocol("WM_DELETE_WINDOW", on_closing)
 
     def signup(self):
         Welcome.number=self.number_var.get()
